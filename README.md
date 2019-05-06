@@ -36,21 +36,6 @@ This component will handle the processing of the data and serves as our **consum
 This component only contains some simple scripts to consume/produce message in our Kafka Broker. 
 
 
-
-
-
-
-## UML diagrams
-
-A very good looking diagram I created in case it is not clear.
-
-```mermaid
-sequenceDiagram
-Producer ->> Kafka Broker: push data
-Consumer->>Kafka Broker: fetch data
-
-```
-
 ## License
 
 ⓒOB CORP
