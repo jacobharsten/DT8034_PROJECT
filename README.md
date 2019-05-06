@@ -15,9 +15,9 @@ Our cool git for the project in the course DT8034 for applying face-recognition 
 ## Kafka
 Currently running on a single node (might need to change to cluster)
 
-**Kafka version:** [2.1.1]
-**IP:** 34.90.40.186
-**PORT**: 9092 (ZooKeeper port 2181)
+**Kafka version:** [2.1.1] 
+**IP:** 34.90.40.186 
+**PORT**: 9092 (ZooKeeper port 2181) 
 	
 
 
