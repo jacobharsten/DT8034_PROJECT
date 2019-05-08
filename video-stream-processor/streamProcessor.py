@@ -1,6 +1,9 @@
-
+import pyspark, os, json, cv2, configparser
+import numpy as np
+from pyspark import SparkContext, SparkConf
 from pyspark.sql import SparkSession
-import configparser
+from pyspark.streaming import StreamingContext
+from pyspark.streaming.kafka import KafkaUtils
 from pyspark.sql.types import StructType
 from pyspark.sql.types import StructField
 from pyspark.sql.types import StringType
@@ -8,18 +11,27 @@ from pyspark.sql.types import TimestampType
 from pyspark.sql.types import IntegerType
 from pyspark.sql import functions
 
+from faceDetector import detect
+
+os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.2 pyspark-shell'
+#spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.2 streamProcessor.py
 
 def run(argv=None):
     #Read config file
     config = configparser.ConfigParser()
     config.read('stream-processor-prop.cfg')
 
-    spark = SparkSession.builder.master("local").appName("stream-processor")\
-        .config("spark.jars", "spark-streaming-kafka-0-8-assembly_2.11-2.4.2.jar")\
-        .getOrCreate()
+    #Initiate spark
+    conf = SparkConf().setMaster("local[*]").setAppName("stream-processor")
+    sc = SparkContext(conf=conf)
+    sc.setLogLevel("ERROR")
+    ssc = StreamingContext(sc, int(config.get("Kafka","interval")))
 
+    #Initiate kafka properties
+    brokers = config.get("Kafka","bootstrap.servers")
+    topic= config.get("Kafka","topic")
     processedImageDir = config.get("OutputDir", "processed.output.dir")
-    #spark-submit streamProcessor.py --packages https://org.apache.spark:spark-sql-kafka-0-8_2.1
+
     #Create schema for json message
     schema = StructType([
 			StructField("cameraId", StringType(), True),
@@ -29,47 +41,14 @@ def run(argv=None):
 			StructField("data", StringType(), True)])
 
     #Create DataSet from stream messages from kafka
-    df = spark \
-        .readStream \
-        .format("kafka") \
-        .option("kafka.bootstrap.servers", config.get("Kafka","bootstrap.servers")) \
-        .option("subscribe", "test") \
-        .load()
 
-    df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
-    print(df)
+    kvs = KafkaUtils.createStream(ssc, brokers, "spark-streaming-consumer", {topic:1})
 
-    """ds = spark \
-        .readStream \
-        .format("kafka") \
-        .option("kafka.bootstrap.servers", config.get("Kafka","bootstrap.servers")) \
-        .option("subscribe", config.get("Kafka","topic")) \
-        .option("kafka.max.partition.fetch.bytes", config.get("Kafka","max.partition.fetch.bytes")) \
-        .option("kafka.max.poll.records", config.get("Kafka","max.poll.records")) \
-        .load() \
-        .selectExpr("CAST(value AS STRING) as message") \
-        .saveAsTextFile("test")"""
+    img = kvs.map(lambda x: detect(json.loads(x[1])['data']))
+    img.pprint()
 
-        #.select(functions.from_json(functions.col("message"),schema) \
-        #.alias("json")) \
-        #.select("json.*")
-        #.as(Encoders.bean(VideoEventData))
-
-    #key-value pair of cameraId-dataBlock
-    #kvDataset = ds.map(lambda data : (data[0], data)).groupByKey()
-
-
-    #process for openCV <TODO> write some stuff here
-    #processedDataset = kvDataset.saveAsTextFile("test")
-
-    #faceDetector.run();;;;;;
-
-    #start
-    """query = processedDataset.writeStream() \
-        .outputMode("update") \
-        .format("console") \
-        .start() \
-        .awaitTermination()"""
+    ssc.start()
+    ssc.awaitTermination()
 
 
 if __name__ == '__main__':

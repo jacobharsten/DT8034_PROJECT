@@ -12,6 +12,7 @@ Sause: https://stackoverflow.com/questions/32583273/spark-streaming-get-warn-rep
 '''
 os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.2 pyspark-shell'
 
+#spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.2 streamProcessorUPDATE.py
 import pyspark
 from pyspark import SparkContext, SparkConf
 
@@ -19,9 +20,10 @@ from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
 from pyspark.sql import SparkSession
 
-conf = SparkConf().setMaster("local[2]").setAppName("Streamer")
+conf = SparkConf().setMaster("local[*]").setAppName("Streamer")
 sc = SparkContext(conf=conf)
-sc.setLogLevel("WARN")
+sc.setLogLevel("ERROR")
+
 
 ssc = StreamingContext(sc, 2)
 

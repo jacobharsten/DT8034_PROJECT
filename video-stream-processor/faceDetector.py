@@ -26,21 +26,20 @@ def findFace(image):
     for (x, y, w, h) in faces:
         cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
 
-def run(argv=None):
-    #replace with json object from kafka <!!!>
-    with open('test.json', 'r') as f:
-        datastore = json.load(f)
+def detect(data):
     #get image matrix
-    image_buffer = getMat(datastore['data'])
+    image_buffer = getMat(data)
     #find faces
     findFace(image_buffer)
+    return image_buffer
     #display image for the lulz
+
+if __name__ == '__main__':
+    run()
+
     """
     while(True):
         cv2.imshow("image", image_buffer)
         if cv2.waitKey(25) & 0xFF == ord('q'):
             break
     """
-
-if __name__ == '__main__':
-    run()

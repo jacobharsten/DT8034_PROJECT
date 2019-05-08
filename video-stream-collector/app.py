@@ -23,6 +23,7 @@ producer = KafkaProducer(bootstrap_servers='34.90.40.186:9092', value_serializer
 if (cap.isOpened()== False):
   print("Error opening video stream or file")
 
+cnt = 0
 # Read until video is completed
 while(cap.isOpened()):
   # Capture frame-by-frame
@@ -31,7 +32,7 @@ while(cap.isOpened()):
 
     frame50 = rescale_frame(frame, percent=50)
 
-    # Fetch rows and cols of the frame 
+    # Fetch rows and cols of the frame
     rows, cols = frame50.shape[:-1]
 
     ret, buffer = cv2.imencode('.jpg', frame50)
@@ -44,10 +45,13 @@ while(cap.isOpened()):
     "timestamp": ts,
     "rows": rows,
     "cols": cols,
-    #"data": jpg_as_text.decode('utf-8')
+    "data": jpg_as_text.decode('utf-8')
     }
 
-    producer.send('test', data)
+    #TESTING PURPOSE FOR SPARK
+    if(cnt == 0):
+        producer.send('test', data)
+        cnt = cnt + 1
 
     # Press Q on keyboard to  exit
     if cv2.waitKey(25) & 0xFF == ord('q'):
