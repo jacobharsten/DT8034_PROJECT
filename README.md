@@ -5,7 +5,7 @@ Our cool git for the project in the course DT8034 for applying face-recognition 
 
 - [x] Set up working Kafka Broker that can produce and consume messages.
 - [x] Set up a video-collector that can encode our image and push to Kafka.
-- [ ] Set up a Spark Application that can consume messages from our broker.
+- [x] Set up a Spark Application that can consume messages from our broker.
 - [ ] Decode the data within Spark, apply face recognition on small batches and sort by camera-id and timestamp. 
 - [ ] Output the data in a Google Cloud Bucket. 
 
