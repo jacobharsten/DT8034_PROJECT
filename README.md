@@ -10,8 +10,7 @@ Our cool git for the project in the course DT8034 for applying face-recognition 
 - [ ] Output the data in a Google Cloud Bucket. 
 
 
->**UPDATE: TO RUN KAFKA WITH PYTHON SPARK VERSION MATCHING IS NEEDED**  
-We are currently running Kafka V2.1.1 in the google cloud cluster. To use python as our consumer we need **Kafka verion 0.8** and **Spark verion 2.2.0**
+**SPARK VERSION:** [2.3.2]
 
 
 ## Kafka
