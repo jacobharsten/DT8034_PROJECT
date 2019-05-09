@@ -28,10 +28,11 @@ def findFace(image):
 
 def detect(data):
     #get image matrix
-    image_buffer = getMat(data)
+    image_buffer = getMat(data['data'])
     #find faces
     findFace(image_buffer)
-    return image_buffer
+    data['data'] = image_buffer
+    return data
     #display image for the lulz
 
 if __name__ == '__main__':

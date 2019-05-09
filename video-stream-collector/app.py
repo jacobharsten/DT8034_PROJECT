@@ -23,7 +23,6 @@ producer = KafkaProducer(bootstrap_servers='34.90.40.186:9092', value_serializer
 if (cap.isOpened()== False):
   print("Error opening video stream or file")
 
-cnt = 0
 # Read until video is completed
 while(cap.isOpened()):
   # Capture frame-by-frame
@@ -49,9 +48,8 @@ while(cap.isOpened()):
     }
 
     #TESTING PURPOSE FOR SPARK
-    if(cnt == 0):
-        producer.send('test', data)
-        cnt = cnt + 1
+
+    producer.send('test', data)
 
     # Press Q on keyboard to  exit
     if cv2.waitKey(25) & 0xFF == ord('q'):
