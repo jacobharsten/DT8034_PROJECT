@@ -43,8 +43,9 @@ def run(argv=None):
     #Create DataSet from stream messages from kafka
 
     kvs = KafkaUtils.createStream(ssc, brokers, "spark-streaming-consumer", {topic:1})
-
-    img = kvs.map(lambda x: detect(json.loads(x[1])['data']))
+    #json.loads(x[1]['cameraId'])
+    img = kvs.map(lambda x: ( json.loads(x[1])['cameraId']  , detect(json.loads(x[1])))) \
+        .groupByKey()
     img.pprint()
 
     ssc.start()

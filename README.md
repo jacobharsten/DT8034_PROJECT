@@ -5,13 +5,12 @@ Our cool git for the project in the course DT8034 for applying face-recognition 
 
 - [x] Set up working Kafka Broker that can produce and consume messages.
 - [x] Set up a video-collector that can encode our image and push to Kafka.
-- [ ] Set up a Spark Application that can consume messages from our broker.
+- [x] Set up a Spark Application that can consume messages from our broker.
 - [ ] Decode the data within Spark, apply face recognition on small batches and sort by camera-id and timestamp. 
 - [ ] Output the data in a Google Cloud Bucket. 
 
 
->**UPDATE: TO RUN KAFKA WITH PYTHON SPARK VERSION MATCHING IS NEEDED**  
-We are currently running Kafka V2.1.1 in the google cloud cluster. To use python as our consumer we need **Kafka verion 0.8** and **Spark verion 2.2.0**
+**SPARK VERSION:** [2.3.2]
 
 
 ## Kafka
