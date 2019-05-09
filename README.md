@@ -33,6 +33,10 @@ This component will handle data collection from file or camera and push the data
 
 This component will handle the processing of the data and serves as our **consumer**. It will be running as a Spark application and **subscribe** to our kafka topic, process the data in smaller batches and output it to our bucket. 
 
+## video-stream-viewer
+
+This component will display the proccesed frames, either from spark directly or via kafka. OpenCV is used to display the frames but this should be changed to some option where the user can select which stream to watch etc.
+
 ## utils
 
 This component only contains some simple scripts to consume/produce message in our Kafka Broker. 
