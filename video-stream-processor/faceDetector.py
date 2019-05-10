@@ -22,17 +22,22 @@ def findFace(image):
         minSize=(30, 30),
         flags = cv2.CASCADE_SCALE_IMAGE
     )
+    if faces == ():
+        return False
     # Draw a rectangle around the faces
     for (x, y, w, h) in faces:
         cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
+    return True
 
 def detect(data):
     #get image matrix
     image_buffer = getMat(data['data'])
     #find faces
-    findFace(image_buffer)
-    data['data'] = image_buffer
-    return data
+    if findFace(image_buffer):
+        data['data'] = image_buffer
+        return True
+
+    return False
     #display image for the lulz
 
 if __name__ == '__main__':
