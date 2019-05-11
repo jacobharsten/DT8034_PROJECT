@@ -34,18 +34,8 @@ def detect(data):
     image_buffer = getMat(data['data'])
     #find faces
     if findFace(image_buffer):
-        data['data'] = image_buffer
-        return True
-
-    return False
+        print(type(image_buffer))
+        #save img to cloud
+    data['data'] = image_buffer
+    return data
     #display image for the lulz
-
-if __name__ == '__main__':
-    run()
-
-    """
-    while(True):
-        cv2.imshow("image", image_buffer)
-        if cv2.waitKey(25) & 0xFF == ord('q'):
-            break
-    """

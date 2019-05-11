@@ -10,10 +10,13 @@ from pyspark.sql.types import StringType
 from pyspark.sql.types import TimestampType
 from pyspark.sql.types import IntegerType
 from pyspark.sql import functions
+from kafka import KafkaProducer
+import base64
 
 from faceDetector import detect
 
 os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.2 pyspark-shell'
+producer = KafkaProducer(bootstrap_servers='34.90.40.186:9092', value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 #spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.2 streamProcessor.py
 
 def run(argv=None):
@@ -33,13 +36,11 @@ def run(argv=None):
     topic= config.get("Kafka","topic")
 
     kvs = KafkaUtils.createStream(ssc, brokers, "spark-streaming-consumer", {topic:1})
-
     package = kvs.map(lambda x: json.loads(x[1]))
-    img = package.filter(lambda x: detect(x))
+    img = package.map(lambda x: detect(x))
     blurred_img = img.map(lambda x: convolute(x))
-    save = blurred_img.map(lambda x: saveFile(x))
-    save.pprint()
-    #blurred_img = img.foreachRDD(lambda x: saveFile(x))
+
+    blurred_img.pprint()
 
 
     ssc.start()
@@ -59,6 +60,16 @@ def gaussianKernel(sigma):
 
     return kernel / np.sum(np.sum(kernel))
 
+def sendToViewer(data):
+    img = data['data']
+    img_as_text = base64.b64encode(img)
+    data = {
+    "cameraId":1,
+    "data": img_as_text.decode('utf-8')
+    }
+    producer.send('viewer',data)
+
+
 def convolute(package):
     img = package['data']
     kernel = gaussianKernel(2)
@@ -71,6 +82,7 @@ def convolute(package):
     img = np.fft.ifft2(imgKer_ft,axes=(0, 1)).real
     img = np.array(img, dtype = np.uint8 )
     package['data'] = img
+    #Send to viewer topic
     #Save image
     saveFile(package)
     return package
