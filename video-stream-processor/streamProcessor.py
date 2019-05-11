@@ -35,21 +35,21 @@ def run(argv=None):
     brokers = config.get("Kafka","bootstrap.servers")
     topic= config.get("Kafka","topic")
 
-    kvs = KafkaUtils.createStream(ssc, brokers, "spark-streaming-consumer", {topic:1})
+    kvs = KafkaUtils.createStream(ssc, brokers, "spark-streaming-consumer", {topic:2})
     package = kvs.map(lambda x: json.loads(x[1]))
     processedImages = package.map(detect)
-    blurredImages = img.map(convolute)
-    filteredImages = blurred_img.filter(lambda x:x['face']==1) \
+    blurredImages = processedImages.map(convolute)
+    filteredImages = blurredImages.filter(lambda data: data['face'] == 1) \
         .map(saveFile)
 
     filteredImages.pprint()
 
-
     ssc.start()
     ssc.awaitTermination()
 
+
 def saveFile(data):
-    img_name = 'images/face-'+str(data['timestamp'])+'.jpg'
+    img_name = 'images/'+ str(data['cameraId']) +'--'+str(data['timestamp'])+'.jpg'
     cv2.imwrite(img_name, data['data'])
     return data
 
