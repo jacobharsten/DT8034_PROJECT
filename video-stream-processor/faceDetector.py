@@ -29,13 +29,17 @@ def findFace(image):
         cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
     return True
 
+def saveFile(data):
+    img_name = 'images/face-'+str(data['timestamp'])+'.jpg'
+    cv2.imwrite(img_name, data['data'])
+    return data
+
 def detect(data):
     #get image matrix
     image_buffer = getMat(data['data'])
     #find faces
     if findFace(image_buffer):
-        print(type(image_buffer))
-        #save img to cloud
+        data['face'] = 1
     data['data'] = image_buffer
     return data
     #display image for the lulz

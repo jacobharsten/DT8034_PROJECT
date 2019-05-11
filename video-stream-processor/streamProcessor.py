@@ -37,10 +37,12 @@ def run(argv=None):
 
     kvs = KafkaUtils.createStream(ssc, brokers, "spark-streaming-consumer", {topic:1})
     package = kvs.map(lambda x: json.loads(x[1]))
-    img = package.map(lambda x: detect(x))
-    blurred_img = img.map(lambda x: convolute(x))
+    processedImages = package.map(detect)
+    blurredImages = img.map(convolute)
+    filteredImages = blurred_img.filter(lambda x:x['face']==1) \
+        .map(saveFile)
 
-    blurred_img.pprint()
+    filteredImages.pprint()
 
 
     ssc.start()
@@ -61,6 +63,7 @@ def gaussianKernel(sigma):
     return kernel / np.sum(np.sum(kernel))
 
 def sendToViewer(data):
+    print('viewerSend')
     img = data['data']
     img_as_text = base64.b64encode(img)
     data = {
@@ -83,8 +86,6 @@ def convolute(package):
     img = np.array(img, dtype = np.uint8 )
     package['data'] = img
     #Send to viewer topic
-    #Save image
-    saveFile(package)
     return package
 
 if __name__ == '__main__':

@@ -45,7 +45,8 @@ while(cap.isOpened()):
     "timestamp": ts,
     "rows": rows,
     "cols": cols,
-    "data": jpg_as_text.decode('utf-8')
+    "data": jpg_as_text.decode('utf-8'),
+    "face": 0
     }
 
     #TESTING PURPOSE FOR SPARK
