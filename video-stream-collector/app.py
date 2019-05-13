@@ -41,7 +41,7 @@ while(cap.isOpened()):
     ts = time.time()
 
     data = {
-    "cameraId": 2,
+    "cameraId": 1,
     "timestamp": ts,
     "rows": rows,
     "cols": cols,

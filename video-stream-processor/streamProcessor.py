@@ -4,12 +4,6 @@ from pyspark import SparkContext, SparkConf
 from pyspark.sql import SparkSession
 from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
-from pyspark.sql.types import StructType
-from pyspark.sql.types import StructField
-from pyspark.sql.types import StringType
-from pyspark.sql.types import TimestampType
-from pyspark.sql.types import IntegerType
-from pyspark.sql import functions
 from kafka import KafkaProducer
 import base64
 
@@ -18,6 +12,7 @@ from faceDetector import detect
 os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.2 pyspark-shell'
 producer = KafkaProducer(bootstrap_servers='34.90.40.186:9092', value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 #spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.2 streamProcessor.py
+#JAVA VERSION 8.1
 
 def run(argv=None):
     #Read config file
@@ -36,17 +31,21 @@ def run(argv=None):
     topic= config.get("Kafka","topic")
 
     kvs = KafkaUtils.createStream(ssc, brokers, "spark-streaming-consumer", {topic:2})
-    package = kvs.map(lambda x: json.loads(x[1]))
-    processedImages = package.map(detect)
-    blurredImages = processedImages.map(convolute)
-    filteredImages = blurredImages.filter(lambda data: data['face'] == 1) \
-        .map(saveFile)
-
-    filteredImages.pprint()
+    package = kvs.map(lambda x: (json.loads(x[1])['cameraId'], json.loads(x[1])))
+    processedImages = package.map(lambda x: (x[0],detect(x[1])))
+    blurredImages = processedImages.map(lambda x: (x[0],convolute(x[1])))
+    filteredImages = blurredImages.filter(lambda data: data[1]['face'] == 1) \
+        .groupByKey() \
+        .foreachRDD(saveToText)
 
     ssc.start()
     ssc.awaitTermination()
 
+def saveToText(rdd):
+    rdd.foreach(lambda data: writeObj(data))
+
+def writeObj(data):
+    for i in data[1]: open('output-'+ str(data[0]) +'.txt', "a").write(str(i))
 
 def saveFile(data):
     img_name = 'images/'+ str(data['cameraId']) +'--'+str(data['timestamp'])+'.jpg'
