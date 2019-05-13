@@ -14,6 +14,17 @@ producer = KafkaProducer(bootstrap_servers='34.90.40.186:9092', value_serializer
 #spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.2 streamProcessor.py
 #JAVA VERSION 8.1
 
+# Need fixing 
+def handler(message):
+    records = message.collect()
+    for record in records:
+        data = {
+        "message": "pung",
+        "id": 1
+        }
+        producer.send('viewer', data)
+        producer.flush()
+
 def run(argv=None):
     #Read config file
     config = configparser.ConfigParser()
@@ -34,6 +45,9 @@ def run(argv=None):
     package = kvs.map(lambda x: (json.loads(x[1])['cameraId'], json.loads(x[1])))
     processedImages = package.map(lambda x: (x[0],detect(x[1])))
     blurredImages = processedImages.map(lambda x: (x[0],convolute(x[1])))
+
+    # For outputing on topic viewer
+    #blurredImages.foreachRDD(handler)
     filteredImages = blurredImages.filter(lambda data: data[1]['face'] == 1) \
         .groupByKey() \
         .foreachRDD(saveToText)
@@ -60,17 +74,6 @@ def gaussianKernel(sigma):
     kernel = np.exp(-(np.square(x) + np.square(y)) / (2*np.square(sigma)))
 
     return kernel / np.sum(np.sum(kernel))
-
-def sendToViewer(data):
-    print('viewerSend')
-    img = data['data']
-    img_as_text = base64.b64encode(img)
-    data = {
-    "cameraId":1,
-    "data": img_as_text.decode('utf-8')
-    }
-    producer.send('viewer',data)
-
 
 def convolute(package):
     img = package['data']
