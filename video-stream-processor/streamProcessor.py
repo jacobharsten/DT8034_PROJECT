@@ -6,6 +6,8 @@ from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
 from kafka import KafkaProducer
 import base64
+import time
+from google.cloud import storage
 
 from faceDetector import detect
 
@@ -14,13 +16,21 @@ producer = KafkaProducer(bootstrap_servers='34.90.40.186:9092', value_serializer
 #spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.2 streamProcessor.py
 #JAVA VERSION 8.1
 
-# Need fixing 
 def handler(message):
     records = message.collect()
     for record in records:
+        obj = record[1]
+
+        _, buffer = cv2.imencode('.jpg', obj['data'])
+        byte_array = base64.b64encode(buffer)
+
         data = {
-        "message": "pung",
-        "id": 1
+        "cameraId": obj['cameraId'],
+        "timestamp": obj['timestamp'],
+        "rows": obj['rows'],
+        "cols": obj['cols'],
+        "data": byte_array.decode('utf-8'),
+        "face": obj['face']
         }
         producer.send('viewer', data)
         producer.flush()
@@ -46,8 +56,11 @@ def run(argv=None):
     processedImages = package.map(lambda x: (x[0],detect(x[1])))
     blurredImages = processedImages.map(lambda x: (x[0],convolute(x[1])))
 
-    # For outputing on topic viewer
-    #blurredImages.foreachRDD(handler)
+    '''
+    For outputting to stream-viewer
+        blurredImages.foreachRDD(handler)
+    '''
+
     filteredImages = blurredImages.filter(lambda data: data[1]['face'] == 1) \
         .groupByKey() \
         .foreachRDD(saveToText)
@@ -59,7 +72,20 @@ def saveToText(rdd):
     rdd.foreach(lambda data: writeObj(data))
 
 def writeObj(data):
-    for i in data[1]: open('output-'+ str(data[0]) +'.txt', "a").write(str(i))
+    """Uploads a file to the bucket."""
+    #SET TO CONFIG
+    BUCKET_NAME = 'pungbucket'
+    STORAGE_NAME = 'results/'
+
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket(BUCKET_NAME)
+
+    for i in data[1]:
+        # TODO: FIX TIME.TIME() TO DATESTAMP FROM DATA PLS.
+        DEST_NAME = STORAGE_NAME + 'output-'+ str(data[0]) +'-'+str(time.time())+'.txt'
+        blob = bucket.blob(DEST_NAME)
+
+        blob.upload_from_string(str(i))
 
 def saveFile(data):
     img_name = 'images/'+ str(data['cameraId']) +'--'+str(data['timestamp'])+'.jpg'
