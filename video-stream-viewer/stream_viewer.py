@@ -8,16 +8,14 @@ import json
 from kafka import KafkaConsumer
 import numpy as np
 
-"""
-En tr8d f0r consuming kafka och en f0r att k0ra video streamen
-"""
-
+# constants
 KAFKA_URI = '34.90.40.186:9092'
 KAFKA_MSG_BUFFER = asyncio.Queue()
 FRAME_BUFFER = asyncio.Queue()
 TOPIC = 'viewer'
 
 def consume():
+    """ Consume messages from kafka. """
 
     consumer = KafkaConsumer(
             TOPIC,
@@ -25,6 +23,7 @@ def consume():
             auto_offset_reset = 'latest',
             max_partition_fetch_bytes=2097152
             )
+    # this loop will continue even if there are no msg at a given time
     for msg in consumer:
 
         value = msg.value.decode('utf8')
@@ -38,6 +37,7 @@ def consume():
     consumer.close()
 
 def startLiveStream():
+    """ Livestream loop that display frames retrieved from kafka. """
 
     # load buffer images
     buffer_images = []
@@ -46,29 +46,35 @@ def startLiveStream():
         img = cv2.imread('bufferimages/buffer{}.png'.format(i+1))
         img = cv2.resize(img, (600, 600))
         buffer_images.append(img)
-
+    
+    # keep track of next buffer image
     buffer_disp_count = 0
+    
+    # flag for frame/buffer display 
     display = False
 
     while True:
 
-        print('Buffer health:{0}'.format(FRAME_BUFFER.qsize()))
+        print('Frame buffer size:{0}'.format(FRAME_BUFFER.qsize()), end='\r')
         if display:
 
-            # detta funkar f0r att testa, kanske kan anv7nda oss ab pyqt??
+            # get next frame in queue
             frame = FRAME_BUFFER.get_nowait()
             cv2.imshow('livestream', frame)
-
+            
+            # added delay to keep steady framerate
             cv2.waitKey(85)
         else:
+
+            # display next buffer images
             cv2.imshow('livestream', buffer_images[buffer_disp_count])
             buffer_disp_count = (buffer_disp_count+1) % 7
 
-            #adjust for 20/30 fps or whatever
+            # added delay to keep steady framerate
             cv2.waitKey(120)
 
 
-        # fill buffer conditions
+        # to keep a steady stream buffer when low on frames
         if FRAME_BUFFER.qsize() < 20:
             display = False
 
@@ -78,7 +84,7 @@ def startLiveStream():
 
 if __name__ == '__main__':
 
+    # run kafka consumer and stream on seperate threads 
     consumeThread = threading.Thread(target=consume)
     consumeThread.start()
     startLiveStream()
-    # add clean up for when livestream ends
