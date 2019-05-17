@@ -12,13 +12,13 @@ Our cool git for the project in the course DT8034 for applying face-recognition 
 - [x] Test run with 1 producer.
 - [x] Test with several producers. 
 - [ ] ~~Fix kernal in convolution to support 'same' approach.~~
-- [ ] Post information to a topic for video-stream-visualisation.
+- [x] Post information to a topic for video-stream-visualisation.
 - [ ] Collect some execution times and compare to non-parallell approach. 
 
 **SPARK VERSION:** [2.3.2]
 
 
-## Kafka
+## Kafka Config
 Currently running on a single node (might need to change to cluster)
 
 **Kafka version:** [2.1.1] 
@@ -44,6 +44,16 @@ This component will display the proccesed frames, either from spark directly or 
 ## utils
 
 This component only contains some simple scripts to consume/produce message in our Kafka Broker. 
+
+## Dependencies
+# On machine
+Java 8.1
+Python 3.7
+# In python environment
+opencv-python=4.1.0
+kafka-python=1.4.6
+pyspark=2.3.2
+numpy=1.16.3
 
 
 ## License
