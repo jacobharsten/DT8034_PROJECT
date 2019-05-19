@@ -18,7 +18,7 @@ os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming
 KAFKA_URI = '34.90.40.186:9092'
 KAFKA_TOPIC = 'viewer'
 CONFIG_FILE_NAME = 'stream-processor-prop.cfg'
-
+kernel = gaussianKernel(2)
 
 #create kafka producer
 producer = KafkaProducer(bootstrap_servers=KAFKA_URI,
@@ -52,42 +52,6 @@ def handler(message):
         # send message
         producer.send(KAFKA_TOPIC, data)
         producer.flush()
-
-def run(argv=None):
-    """ Spark pipeline"""
-
-    #Read config file
-    config = configparser.ConfigParser()
-    config.read(CONFIG_FILE_NAME)
-
-    #Initiate spark
-    conf = SparkConf().setMaster("local[*]").setAppName("stream-processor")
-    sc = SparkContext(conf=conf)
-    sc.setLogLevel("ERROR")
-    ssc = StreamingContext(sc, int(config.get("Kafka","interval")))
-    processedImageDir = config.get("OutputDir", "processed.output.dir")
-
-    #Initiate kafka properties
-    brokers = config.get("Kafka","bootstrap.servers")
-    topic= config.get("Kafka","topic")
-    
-    # create kafka stream obj
-    kvs = KafkaUtils.createStream(ssc, brokers, "spark-streaming-consumer", {topic:2})
-    package = kvs.map(lambda x: (json.loads(x[1])['cameraId'], json.loads(x[1])))
-    processedImages = package.map(lambda x: (x[0],detect(x[1])))
-    blurredImages = processedImages.map(lambda x: (x[0],convolute(x[1])))
-
-    '''
-    For outputting to stream-viewer
-        blurredImages.foreachRDD(handler)
-    '''
-
-    filteredImages = blurredImages.filter(lambda data: data[1]['face'] == 1) \
-        .groupByKey() \
-        .foreachRDD(saveToText)
-
-    ssc.start()
-    ssc.awaitTermination()
 
 def saveToText(rdd):
     """ Save each rdd to gc bucket"""
@@ -133,7 +97,6 @@ def convolute(package):
     """ Convolute the data in package with a gaussian filter """ 
 
     img = package['data']
-    kernel = gaussianKernel(2)
     
     # Padded fourier transform, with the same shape as the image
     kernel_ft = np.fft.fft2(kernel, s=img.shape[:2])
@@ -147,6 +110,43 @@ def convolute(package):
     img = np.array(img, dtype = np.uint8 )
     package['data'] = img
     return package
+
+def run(argv=None):
+    """ Spark pipeline"""
+
+    #Read config file
+    config = configparser.ConfigParser()
+    config.read(CONFIG_FILE_NAME)
+    
+    #Initiate spark
+    conf = SparkConf().setMaster("local[*]").setAppName("stream-processor")
+    sc = SparkContext(conf=conf)
+    sc.setLogLevel("ERROR")
+    ssc = StreamingContext(sc, int(config.get("Kafka","interval")))
+    processedImageDir = config.get("OutputDir", "processed.output.dir")
+
+    #Initiate kafka properties
+    brokers = config.get("Kafka","bootstrap.servers")
+    topic= config.get("Kafka","topic")
+    
+    # create kafka stream obj
+    kvs = KafkaUtils.createStream(ssc, brokers, "spark-streaming-consumer", {topic:2})
+    package = kvs.map(lambda x: (json.loads(x[1])['cameraId'], json.loads(x[1])))
+    processedImages = package.map(lambda x: (x[0],detect(x[1])))
+    blurredImages = processedImages.map(lambda x: (x[0],convolute(x[1])))
+
+    '''
+    For outputting to stream-viewer
+        blurredImages.foreachRDD(handler)
+    '''
+
+    filteredImages = blurredImages.filter(lambda data: data[1]['face'] == 1) \
+        .groupByKey() \
+        .foreachRDD(saveToText)
+
+    ssc.start()
+    ssc.awaitTermination()
+
 
 if __name__ == '__main__':
     run()

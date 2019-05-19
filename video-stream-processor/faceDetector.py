@@ -3,6 +3,9 @@ import cv2
 import base64
 import json
 
+# run once
+faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+
 
 def getMat(data):
     """ Convert base64 data to a cv2 image """ 
@@ -18,7 +21,6 @@ def findFace(image):
         false. """ 
 
     # create face classifer
-    faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # Detect faces in the image, the parameters are the default values set by opencv
