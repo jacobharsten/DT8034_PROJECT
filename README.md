@@ -14,12 +14,12 @@ Currently running on a single node.
 
 ## Installation
 
-Running locally:
+**Running locally:**
 ```bash
 spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.2
 ```
 
-Running in cloud:
+**Running in cloud:**
 
 ```bash
 gcloud dataproc clusters create my-cluster \
@@ -43,8 +43,6 @@ The following files need to be uploaded to Google Cloud:
 gcloud dataproc jobs submit pyspark --py-files faceDetector.py,stream-processor-prop.cfg,haarcascade_frontalface_default.xml streamProcessor.py --cluster=my-cluster --jars=spark-streaming-kafka-0-8-assembly_2.11-2.4.2.jar
 ```
 
-	
-
 
 ## video-stream-collector
 
@@ -63,10 +61,10 @@ This component will display the proccesed frames, either from spark directly or 
 This component only contains some simple scripts to consume/produce message in our Kafka Broker. 
 
 ## Dependencies
-# On machine
+**On machine**
 Java 8.1
 Python 3.7
-# In python environment
+**In python environment**
 opencv-python=4.1.0
 kafka-python=1.4.6
 pyspark=2.3.2
