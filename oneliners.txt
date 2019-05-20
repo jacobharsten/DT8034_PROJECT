@@ -1,0 +1,15 @@
+# submit spark job via gcloud
+gcloud dataproc jobs submit pyspark --py-files faceDetector.py,stream-processor-prop.cfg,haarcascade_frontalface_default.xml streamProcessor.py --cluster=my-cluster --jars=spark-streaming-kafka-0-8-assembly_2.11-2.4.2.jar
+
+# create cluster for pyspark/kafka
+gcloud dataproc clusters create my-cluster \
+    --image-version 1.3 \
+    --metadata 'MINICONDA_VARIANT=3' \
+    --metadata 'MINICONDA_VERSION=latest' \
+    --metadata 'CONDA_PACKAGES=opencv=3.4.2' \
+    --metadata 'PIP_PACKAGES=pyspark==2.3.2 kafka-python==1.4.6 google-cloud-storage==1.15.0' \
+    --initialization-actions \
+    gs://dataproc-initialization-actions/conda/bootstrap-conda.sh,gs://dataproc-initialization-actions/conda/install-conda-env.sh
+
+# run on spark locally
+spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.2
