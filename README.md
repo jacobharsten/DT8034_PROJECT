@@ -33,11 +33,11 @@ gcloud dataproc clusters create my-cluster \
 ```
 
 The following files need to be uploaded to Google Cloud: 
-⋅⋅* faceDetector.py 
-⋅⋅* stream-processor-prop.cfg 
-⋅⋅* haarcascade_frontalface_default.xml 
-⋅⋅* streamProcessor.py 
-⋅⋅* spark-streaming-kafka-0-8-assembly_2.11-2.4.2.jar 
+* faceDetector.py 
+* stream-processor-prop.cfg 
+* haarcascade_frontalface_default.xml 
+* streamProcessor.py 
+* spark-streaming-kafka-0-8-assembly_2.11-2.4.2.jar 
 
 ```bash
 gcloud dataproc jobs submit pyspark --py-files faceDetector.py,stream-processor-prop.cfg,haarcascade_frontalface_default.xml streamProcessor.py --cluster=my-cluster --jars=spark-streaming-kafka-0-8-assembly_2.11-2.4.2.jar
