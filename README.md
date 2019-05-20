@@ -1,31 +1,48 @@
 # DT8034 Project 2019
-Our cool git for the project in the course DT8034 for applying face-recognition from multiple inputs using Apache Spark.  
-
-**TODO:**
-
-- [x] Set up working Kafka Broker that can produce and consume messages.
-- [x] Set up a video-collector that can encode our image and push to Kafka.
-- [x] Set up a Spark Application that can consume messages from our broker.
-- [x] Decode the data within Spark, apply face recognition on small batches and sort by camera-id and timestamp. 
-- [x] Output the data in a Google Cloud Bucket. 
-- [x] Only push images that detect a face. 
-- [x] Test run with 1 producer.
-- [x] Test with several producers. 
-- [ ] ~~Fix kernal in convolution to support 'same' approach.~~
-- [x] Post information to a topic for video-stream-visualisation.
-- [ ] Collect some execution times and compare to non-parallell approach. 
+Image analysis using Apache Spark & Apache Kafka  
 
 **SPARK VERSION:** [2.3.2]
 
-
 ## Kafka Config
-Currently running on a single node (might need to change to cluster)
+Currently running on a single node.
 
 **Kafka version:** [2.1.1] 
 
-**IP:** 34.90.40.186 
+**IP:** 34.90.222.198 
 
-**PORT**: 9092 (ZooKeeper port 2181) 
+**PORT**: 9092 (ZooKeeper port 2181)
+
+## Installation
+
+Running locally:
+```bash
+spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.2
+```
+
+Running in cloud:
+
+```bash
+gcloud dataproc clusters create my-cluster \
+    --image-version 1.3 \
+    --metadata 'MINICONDA_VARIANT=3' \
+    --metadata 'MINICONDA_VERSION=latest' \
+    --metadata 'CONDA_PACKAGES=opencv=3.4.2' \
+    --metadata 'PIP_PACKAGES=pyspark==2.3.2 kafka-python==1.4.6 google-cloud-storage==1.15.0' \
+    --initialization-actions \
+    gs://dataproc-initialization-actions/conda/bootstrap-conda.sh,gs://dataproc-initialization-actions/conda/install-conda-env.sh
+```
+
+The following files need to be uploaded to Google Cloud:
+⋅⋅* faceDetector.py
+⋅⋅* stream-processor-prop.cfg
+⋅⋅* haarcascade_frontalface_default.xml
+⋅⋅* streamProcessor.py
+⋅⋅* spark-streaming-kafka-0-8-assembly_2.11-2.4.2.jar
+
+```bash
+gcloud dataproc jobs submit pyspark --py-files faceDetector.py,stream-processor-prop.cfg,haarcascade_frontalface_default.xml streamProcessor.py --cluster=my-cluster --jars=spark-streaming-kafka-0-8-assembly_2.11-2.4.2.jar
+```
+
 	
 
 
@@ -56,6 +73,3 @@ pyspark=2.3.2
 numpy=1.16.3
 
 
-## License
-
-ⓒOB CORP
