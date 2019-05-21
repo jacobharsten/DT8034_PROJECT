@@ -15,10 +15,10 @@ Currently running on a single node.
 ## Installation
 
 ### Dependencies
-**On machine**
+**On machine:**  
 Java 8.1  
 Python 3.7  
-**In python environment**  
+**In Python environment:**  
 opencv-python=4.1.0  
 kafka-python=1.4.6  
 pyspark=2.3.2  
