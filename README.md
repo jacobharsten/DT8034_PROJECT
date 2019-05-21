@@ -1,5 +1,5 @@
 # DT8034 Project 2019
-Image analysis using Apache Spark & Apache Kafka  
+> Image analysis using Apache Spark & Apache Kafka  
 
 **SPARK VERSION:** [2.3.2]
 
