@@ -67,12 +67,12 @@ This component only contains some simple scripts to consume/produce message in o
 
 ## Dependencies
 **On machine**
-Java 8.1
-Python 3.7
+Java 8.1 
+Python 3.7 
 **In python environment**
-opencv-python=4.1.0
-kafka-python=1.4.6
-pyspark=2.3.2
-numpy=1.16.3
+opencv-python=4.1.0 
+kafka-python=1.4.6 
+pyspark=2.3.2 
+numpy=1.16.3 
 
 
