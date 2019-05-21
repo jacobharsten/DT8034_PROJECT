@@ -14,6 +14,16 @@ Currently running on a single node.
 
 ## Installation
 
+### Dependencies
+**On machine**
+Java 8.1  
+Python 3.7  
+**In python environment**  
+opencv-python=4.1.0  
+kafka-python=1.4.6  
+pyspark=2.3.2  
+numpy=1.16.3  
+
 ### Running locally:
 ```bash
 spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.2
@@ -64,15 +74,5 @@ This component will display the proccesed frames, either from spark directly or 
 ## utils
 
 This component only contains some simple scripts to consume/produce message in our Kafka Broker. 
-
-## Dependencies
-**On machine**
-Java 8.1 
-Python 3.7 
-**In python environment**
-opencv-python=4.1.0 
-kafka-python=1.4.6 
-pyspark=2.3.2 
-numpy=1.16.3 
 
 
