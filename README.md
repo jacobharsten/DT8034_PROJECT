@@ -13,16 +13,7 @@ Currently running on a single node.
 **PORT**: 9092 (ZooKeeper port 2181)
 
 ## Installation
-
-### Dependencies
-**On machine:**  
-Java 8.1  
-Python 3.7  
-**In Python environment:**  
-opencv-python=4.1.0  
-kafka-python=1.4.6  
-pyspark=2.3.2  
-numpy=1.16.3  
+Dependencies can be found at the end of this README file.
 
 ### Running locally:
 ```bash
@@ -75,4 +66,12 @@ This component will display the proccesed frames, either from spark directly or 
 
 This component only contains some simple scripts to consume/produce message in our Kafka Broker. 
 
-
+## Dependencies
+**On machine:**  
+Java 8.1  
+Python 3.7  
+**In Python environment:**  
+opencv-python=4.1.0  
+kafka-python=1.4.6  
+pyspark=2.3.2  
+numpy=1.16.3  
