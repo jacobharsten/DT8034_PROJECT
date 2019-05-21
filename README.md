@@ -1,10 +1,10 @@
 # DT8034 Project 2019
-> Image analysis using Apache Spark & Apache Kafka  
+Image analysis using Apache Spark & Apache Kafka.
 
 **SPARK VERSION:** [2.3.2]
 
 ## Kafka Config
-Currently running on a single node.
+> Currently running on a single node.
 
 **Kafka version:** [2.1.1] 
 
@@ -13,7 +13,7 @@ Currently running on a single node.
 **PORT**: 9092 (ZooKeeper port 2181)
 
 ## Installation
-Dependencies can be found at the end of this README file.
+> Dependencies can be found at the end of this README file.
 
 ### Running locally:
 ```bash
