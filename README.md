@@ -14,12 +14,14 @@ Currently running on a single node.
 
 ## Installation
 
-**Running locally:**
+### Running locally:
 ```bash
 spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.2
 ```
 
-**Running in cloud:**
+### Running in cloud:
+
+**Create cluster**
 
 ```bash
 gcloud dataproc clusters create my-cluster \
@@ -32,6 +34,8 @@ gcloud dataproc clusters create my-cluster \
     gs://dataproc-initialization-actions/conda/bootstrap-conda.sh,gs://dataproc-initialization-actions/conda/install-conda-env.sh
 ```
 
+**Upload files**
+
 The following files need to be uploaded to Google Cloud: 
 * faceDetector.py 
 * stream-processor-prop.cfg 
@@ -39,6 +43,7 @@ The following files need to be uploaded to Google Cloud:
 * streamProcessor.py 
 * spark-streaming-kafka-0-8-assembly_2.11-2.4.2.jar 
 
+**Run in cloud**
 ```bash
 gcloud dataproc jobs submit pyspark --py-files faceDetector.py,stream-processor-prop.cfg,haarcascade_frontalface_default.xml streamProcessor.py --cluster=my-cluster --jars=spark-streaming-kafka-0-8-assembly_2.11-2.4.2.jar
 ```
