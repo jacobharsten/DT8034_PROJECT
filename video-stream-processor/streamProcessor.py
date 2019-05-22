@@ -1,4 +1,4 @@
-import pyspark, os, json, configparser
+import pyspark, os, json, cv2, configparser
 import numpy as np
 from pyspark import SparkContext, SparkConf
 from pyspark.streaming import StreamingContext
@@ -15,13 +15,12 @@ os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming
 CONFIG_FILE_NAME = 'stream-processor-prop.cfg'
 config = configparser.ConfigParser()
 config.read(CONFIG_FILE_NAME)
+OUTPUT_DIR = config.get("Output","processed.dir")
 KAFKA_URI = config.get('Kafka','bootstrap.server.produce')
 KAFKA_TOPIC = config.get('Kafka','topic.produce')
-LIVESTREAM = True
 
 # create producer used to send procces data back into kafka
-producer = KafkaProducer(bootstrap_servers=KAFKA_URI,
-                        value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+producer = KafkaProducer(bootstrap_servers=KAFKA_URI)
 
 def makeMsg(data):
 
@@ -82,8 +81,8 @@ def saveOutput(rdd):
     """ Save rdd contents to file"""
 
     if not rdd.isEmpty():
-        STRING = 'output/'+str(rdd.id())+'.txt'
-        rdd.saveAsTextFile(STRING)
+        fileDir = OUTPUT_DIR+str(rdd.id())+'.txt'
+        rdd.saveAsTextFile(fileDir)
 
 def run(argv=None):
     """ Spark pipeline"""
