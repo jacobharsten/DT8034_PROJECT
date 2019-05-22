@@ -1,11 +1,23 @@
 from kafka import KafkaProducer
+import configparser
 
-producer = KafkaProducer(bootstrap_servers='34.90.40.186:9092', value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+if __name__ = '__main__':
 
-message = "Here is a message"
+    # read config
+    conf = configparser.ConfigParser()
+    conf.read('../config.cfg')
+    kafka_topic = conf.get('Kafka', 'topic.in')
+    kafka_srv = conf.get('Kafka', 'bootstrap_servers')
+    val_serial = lambda v: json.dumps(v).encode('utf-8')
 
-data = {
-"message": message,
-}
+    # create producer
+    producer = KafkaProducer(bootstrap_servers=kafka_srv,
+                             value_serializer=val_serial)
 
-producer.send('test', data)
+    # message to send
+    data = {
+    "message": 'Here is a message',
+    }
+
+    # send
+    producer.send(kafka_topic, data)
