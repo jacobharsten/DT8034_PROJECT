@@ -16,8 +16,8 @@ Image analysis using Apache Spark & Apache Kafka.
 
 ## Installation
 
-> To run locally set: **processed.dir = output/** inside video-stream-processor/stream-processor-prop.cfg  
 ### Running locally:
+> To run locally set: **processed.dir = output/** inside video-stream-processor/stream-processor-prop.cfg  
 ```bash
 spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.2 streamProcessor.py
 ```
