@@ -1,6 +1,8 @@
 # DT8034 Project 2019
 Image analysis using Apache Spark & Apache Kafka.
 
+> Dependencies can be found at the end of this README file.
+
 **SPARK VERSION:** [2.3.2]
 
 ## Kafka Config
@@ -13,9 +15,8 @@ Image analysis using Apache Spark & Apache Kafka.
 **PORT**: 9092 (ZooKeeper port 2181)
 
 ## Installation
-> Dependencies can be found at the end of this README file.
 
-To run locally set: **processed.dir = output/** inside video-stream-processor/stream-processor-prop.cfg  
+> To run locally set: **processed.dir = output/** inside video-stream-processor/stream-processor-prop.cfg  
 ### Running locally:
 ```bash
 spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.2 streamProcessor.py
