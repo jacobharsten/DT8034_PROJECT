@@ -15,9 +15,10 @@ Image analysis using Apache Spark & Apache Kafka.
 ## Installation
 > Dependencies can be found at the end of this README file.
 
+To run locally set: **processed.dir = output/** inside video-stream-processor/stream-processor-prop.cfg  
 ### Running locally:
 ```bash
-spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.2
+spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.2 streamProcessor.py
 ```
 
 ### Running in cloud:
