@@ -103,19 +103,15 @@ def run(argv=None):
     package = kvs.map(lambda x: (json.loads(x[1])['cameraId'], json.loads(x[1])))
     processedImages = package.map(detect)
     blurredImages = processedImages.map(convolute)
+
+    # send all frames to stream viewer
+    live_stream = blurredImages.map(makeMsg).foreachRDD(sendMsg)
+
+    # filter faces only and save to text
     filteredImages = blurredImages.filter(lambda data: data[1]['face'] == 1) \
                     .groupByKey()
-
-    if LIVESTREAM:
-
-        # send data to stream viewer
-        filteredImages.map(makeMsg).foreachRDD(sendMsg)
-    else:
-
-        # save as text file
-        output = filteredImages.map(lambda x: (x[0], len(x[1]))) \
+    output = filteredImages.map(lambda x: (x[0], len(x[1]))) \
                         .foreachRDD(saveOutput)
-
 
     ssc.start()
     ssc.awaitTermination()
