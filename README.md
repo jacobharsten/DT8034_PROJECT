@@ -42,7 +42,6 @@ The following files need to be uploaded to Google Cloud:
 * stream-processor-prop.cfg 
 * haarcascade_frontalface_default.xml 
 * streamProcessor.py 
-* spark-streaming-kafka-0-8-assembly_2.11-2.4.2.jar 
 
 **Run in cloud**
 ```bash
