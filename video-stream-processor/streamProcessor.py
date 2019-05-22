@@ -17,35 +17,46 @@ config = configparser.ConfigParser()
 config.read(CONFIG_FILE_NAME)
 KAFKA_URI = config.get('Kafka','bootstrap.server.produce')
 KAFKA_TOPIC = config.get('Kafka','topic.produce')
+LIVESTREAM = True
 
+# create producer used to send procces data back into kafka
 producer = KafkaProducer(bootstrap_servers=KAFKA_URI,
                         value_serializer=lambda v: json.dumps(v).encode('utf-8'))
-#spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.2 streamProcessor.py
-#JAVA VERSION 8.1
 
-def handler(message):
+def makeMsg(data):
+
+    # get json object
+    obj = data[1]
+
+    # encode image
+    _, buf = cv2.imencode('.jpg', obj['data'])
+    byte_array = base64.b64encode(buf)
+
+    data = {
+        "cameraId": obj['cameraId'],
+        "frameId": obj['frameId'],
+        "timestamp": obj['timestamp'],
+        "rows": obj['rows'],
+        "cols": obj['cols'],
+        "data": byte_array.decode('utf-8'),
+        "face": obj['face']
+    }
+
+    return json.dumps(data).encode('utf-8')
+
+def sendMsg(messages):
     """ Sends messages to kafka server"""
 
-    records = message.collect()
+    # collect
+    records = messages.collect()
     for record in records:
-        obj = record[1]
-        _, buf = cv2.imencode('.jpg', obj['data'])
-        byte_array = base64.b64encode(buf)
 
-        data = {
-            "cameraId": obj['cameraId'],
-            "timestamp": obj['timestamp'],
-            "rows": obj['rows'],
-            "cols": obj['cols'],
-            "data": byte_array.decode('utf-8'),
-            "face": obj['face']
-        }
         # send message
-        producer.send(KAFKA_TOPIC, data)
-        producer.flush()
+        producer.send(KAFKA_TOPIC, record)
 
 def gaussianKernel(sigma):
     """ Create gaussian filter with kernel of given length """
+
     gx = np.arange(-sigma*3, sigma*3)
     x, y = np.meshgrid(gx, gx)
     kernel = np.exp(-(np.square(x) + np.square(y)) / (2*np.square(sigma)))
@@ -53,11 +64,13 @@ def gaussianKernel(sigma):
 
 def convolute(package):
     """ Convolute the data in package with a gaussian filter """
+
     img = package[1]['data']
     # Padded fourier transform, with the same shape as the image
     kernel_ft = np.fft.fft2(kernel, s=img.shape[:2])
     # convolve
     img_ft = np.fft.fft2(img, axes=(0, 1))
+
     # the 'newaxis' is to match to color dimension
     imgKer_ft = img_ft * kernel_ft[:, :, np.newaxis]
     img = np.fft.ifft2(imgKer_ft,axes=(0, 1)).real
@@ -66,12 +79,15 @@ def convolute(package):
     return package
 
 def saveOutput(rdd):
+    """ Save rdd contents to file"""
+
     if not rdd.isEmpty():
         STRING = 'output/'+str(rdd.id())+'.txt'
         rdd.saveAsTextFile(STRING)
 
 def run(argv=None):
     """ Spark pipeline"""
+
     #Initiate spark
     conf = SparkConf().setMaster("local[*]").setAppName("stream-processor")
     sc = SparkContext(conf=conf)
@@ -89,13 +105,26 @@ def run(argv=None):
     blurredImages = processedImages.map(convolute)
     filteredImages = blurredImages.filter(lambda data: data[1]['face'] == 1) \
                     .groupByKey()
-    output = filteredImages.map(lambda x: (x[0], len(x[1]))) \
-                    .foreachRDD(saveOutput)
+
+    if LIVESTREAM:
+
+        # send data to stream viewer
+        filteredImages.map(makeMsg).foreachRDD(sendMsg)
+    else:
+
+        # save as text file
+        output = filteredImages.map(lambda x: (x[0], len(x[1]))) \
+                        .foreachRDD(saveOutput)
+
 
     ssc.start()
     ssc.awaitTermination()
 
 
 if __name__ == '__main__':
+
+    # create kernel object for convolute
     kernel = gaussianKernel(2)
+
+    # run spark
     run()
