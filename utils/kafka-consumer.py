@@ -12,7 +12,6 @@ if __name__ == '__main__':
 
     # create and run simple consumer
     consumer = KafkaConsumer(kafka_topic, bootstrap_servers=kafka_srv)
-    count = 0
+    
     for msg in consumer:
-         count += 1
-         print(count)
+         print(msg)
