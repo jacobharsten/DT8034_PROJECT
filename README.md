@@ -45,6 +45,8 @@ The following files need to be uploaded to Google Cloud:
 * haarcascade_frontalface_default.xml 
 * streamProcessor.py 
 
+> Create bucket and set **processed.dir=gs://[YOUR-BUCKET-NAME]/output/** in stream-processor-prop.cfg 
+
 **Run in cloud**
 ```bash
 gcloud dataproc jobs submit pyspark --py-files faceDetector.py,stream-processor-prop.cfg,haarcascade_frontalface_default.xml streamProcessor.py --cluster=my-cluster --properties spark.jars.packages=org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.2
