@@ -1,10 +1,10 @@
 # DT8034 Project 2019
-Image analysis using Apache Spark & Apache Kafka  
+Image analysis using Apache Spark & Apache Kafka.
 
 **SPARK VERSION:** [2.3.2]
 
 ## Kafka Config
-Currently running on a single node.
+> Currently running on a single node.
 
 **Kafka version:** [2.1.1] 
 
@@ -13,13 +13,16 @@ Currently running on a single node.
 **PORT**: 9092 (ZooKeeper port 2181)
 
 ## Installation
+> Dependencies can be found at the end of this README file.
 
-**Running locally:**
+### Running locally:
 ```bash
 spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.2
 ```
 
-**Running in cloud:**
+### Running in cloud:
+
+**Create cluster**
 
 ```bash
 gcloud dataproc clusters create my-cluster \
@@ -32,6 +35,8 @@ gcloud dataproc clusters create my-cluster \
     gs://dataproc-initialization-actions/conda/bootstrap-conda.sh,gs://dataproc-initialization-actions/conda/install-conda-env.sh
 ```
 
+**Upload files**
+
 The following files need to be uploaded to Google Cloud: 
 * faceDetector.py 
 * stream-processor-prop.cfg 
@@ -39,6 +44,7 @@ The following files need to be uploaded to Google Cloud:
 * streamProcessor.py 
 * spark-streaming-kafka-0-8-assembly_2.11-2.4.2.jar 
 
+**Run in cloud**
 ```bash
 gcloud dataproc jobs submit pyspark --py-files faceDetector.py,stream-processor-prop.cfg,haarcascade_frontalface_default.xml streamProcessor.py --cluster=my-cluster --jars=spark-streaming-kafka-0-8-assembly_2.11-2.4.2.jar
 ```
@@ -61,13 +67,11 @@ This component will display the proccesed frames, either from spark directly or 
 This component only contains some simple scripts to consume/produce message in our Kafka Broker. 
 
 ## Dependencies
-**On machine**
-Java 8.1
-Python 3.7
-**In python environment**
-opencv-python=4.1.0
-kafka-python=1.4.6
-pyspark=2.3.2
-numpy=1.16.3
-
-
+**On machine:**  
+Java 8.1  
+Python 3.7  
+**In Python environment:**  
+opencv-python=4.1.0  
+kafka-python=1.4.6  
+pyspark=2.3.2  
+numpy=1.16.3  
