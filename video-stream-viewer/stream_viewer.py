@@ -7,12 +7,16 @@ import time
 import json
 from kafka import KafkaConsumer
 import numpy as np
+import configparser
+
 
 # constants
-KAFKA_URI = '34.90.222.198:9092'
+conf = configparser.ConfigParser()
+conf.read('../config.cfg')
+KAFKA_URI = conf.get('Kafka', 'server')
 KAFKA_MSG_BUFFER = asyncio.Queue()
 FRAME_BUFFER = asyncio.Queue()
-TOPIC = 'viewer'
+TOPIC = conf.get('Kafka', 'topic.out')
 
 def consume():
     """ Consume messages from kafka. """

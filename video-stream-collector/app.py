@@ -23,7 +23,7 @@ if __name__ == '__main__':
     conf = configparser.ConfigParser()
     conf.read('../config.cfg')
     kafka_topic = conf.get('Kafka', 'topic.in')
-    kafka_srv = conf.get('Kafka', 'bootstrap_servers')
+    kafka_srv = conf.get('Kafka', 'server')
 
     # make value serializer
     val_serial = lambda v: json.dumps(v).encode('utf-8')
