@@ -10,7 +10,7 @@ Image analysis using Apache Spark & Apache Kafka.
 
 **Kafka version:** [2.1.1] 
 
-**IP:** 34.90.222.198 
+**IP:** ~~34.90.222.198~~
 
 **PORT**: 9092 (ZooKeeper port 2181)
 
